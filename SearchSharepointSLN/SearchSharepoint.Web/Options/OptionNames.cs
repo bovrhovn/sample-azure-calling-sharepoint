@@ -3,4 +3,5 @@
 public struct OptionNames
 {
     public const string WebOptionsName = "Web"; 
+    public const string AzureAdSettingsName = "AzureAd"; 
 }

@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{query?}"
 @model SearchSharepoint.Web.Pages.SP.IndexPageModel
 
 @{
@@ -6,3 +6,11 @@
 }
 
 <h2>Use search form below to search for API</h2>
+
+<form method="get">
+    <div class="form-group">
+        <label asp-for="Query"></label>
+        <input asp-for="Query" class="form-control"/>
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
