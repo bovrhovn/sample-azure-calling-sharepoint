@@ -5,23 +5,26 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using SearchSharepoint.Web.Options;
+using SearchSharepoint.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddOptions<WebOptions>()
-    .Bind(builder.Configuration.GetSection(OptionNames.WebOptionsName))
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
 builder.Services.AddOptions<AzureAdOptions>()
-    .Bind(builder.Configuration.GetSection(OptionNames.AzureAdSettingsName))
+    .Bind(builder.Configuration.GetSection(OptionNames.AzureAdOptionsName))
+    .ValidateDataAnnotations();
+builder.Services.AddOptions<SharepointOptions>()
+    .Bind(builder.Configuration.GetSection(OptionNames.SharepointOptionsName))
     .ValidateDataAnnotations();
 
 builder.Services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddHttpClient<ISharepointSearchServices, SharepointSearchService>();
+
 builder.Services.AddRazorPages();
 builder.Services.AddHealthChecks();
 
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection(OptionNames.AzureAdSettingsName));
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection(OptionNames.AzureAdOptionsName));
 
 builder.Services.AddRazorPages().AddRazorPagesOptions(options =>
         options.Conventions.AddPageRoute("/Info/Index", ""))

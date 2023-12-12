@@ -7,10 +7,35 @@
 
 <h2>Use search form below to search for API</h2>
 
-<form method="get">
-    <div class="form-group">
-        <label asp-for="Query"></label>
-        <input asp-for="Query" class="form-control"/>
-    </div>
-    <button type="submit" class="btn btn-primary">Search</button>
-</form>
+<div class="row">
+    <form method="get" class="row g-3">
+        <div class="col-8 col-md-8">
+            <input asp-for="Query" class="form-control" placeholder="enter search query and press search"/>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Search <i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+    </form>
+
+    @if (Model.SearchResults.Any())
+    {
+        <div class="card-group">
+            @foreach (var searchResult in Model.SearchResults)
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@searchResult.Title</h5>
+                        <p class="card-text">@searchResult.ShortDescription</p>
+                        <a href="@searchResult.MoreLink" class="card-link">Read more...</a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-dark m-3" role="alert">
+            No data based on the search query. Try another!
+        </div>
+    }
+</div>

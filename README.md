@@ -1,11 +1,10 @@
 # Sample to demonstrate Azure calling SharePoint
 
-Demonstration how to leverage Azure with custom web app to call sharepoint
+Demonstration how to leverage Azure with web app to call SharePoint API in a context of a currently signed in user.
 
 ## Technology used
 
 The solution will use following technology:
-- [HTMX](https://htmx.org/) for manipulating calls to Ajax, WS and server sent events
 - [Bootstrap CSS](https://getbootstrap.com/) for design
 - [ASP.NET](https://asp.net) as a technology to provide UI and code to call the API's
 - [Azure Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) to get information about metrics / logs and to build interactive, rich dashboards
