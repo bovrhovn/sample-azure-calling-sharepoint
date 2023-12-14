@@ -1,4 +1,6 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
+using System.Security;
 using System.Web;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
@@ -31,13 +33,13 @@ public class SharepointSearchService : ISharepointSearchServices
     {
         var app = ConfidentialClientApplicationBuilder.Create(azureAdOptions.ClientId)
             .WithClientSecret(azureAdOptions.Secret)
+            .WithTenantId(azureAdOptions.TenantId)
             .WithAuthority(new Uri($"https://login.microsoftonline.com/{azureAdOptions.TenantId}"))
             .WithLegacyCacheCompatibility(false)
             .Build();
-        var scopes = new string[] { $"{sharepointOptions.TenantUrl}/.default" };
+        var scopes = new[] { $"{sharepointOptions.TenantUrl}.default" };
         var token = await app.AcquireTokenForClient(scopes).ExecuteAsync();
         return token == null ? string.Empty : token.AccessToken;
-        
     }
 
     public async Task<List<SearchModel>> SearchAsync(string query)
@@ -54,6 +56,7 @@ public class SharepointSearchService : ISharepointSearchServices
         try
         {
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bootstrapToken);
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             query = HttpUtility.HtmlEncode(query);
             logger.LogInformation("Calling sharepoint search with query {Query}", query);
             var result = await httpClient.GetStringAsync($"_api/search/query?queryText={query}");
@@ -67,6 +70,7 @@ public class SharepointSearchService : ISharepointSearchServices
         {
             logger.LogError(e.Message);
         }
+
         return new List<SearchModel>();
     }
 }
