@@ -1,0 +1,103 @@
+{
+	"info": {
+		"_postman_id": "483b895c-da7e-4863-9c82-670351c364b9",
+		"name": "Sharepoint Online",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "498671"
+	},
+	"item": [
+		{
+			"name": "Authorize",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "resource",
+							"value": "00000003-0000-0ff1-ce00-000000000000/yourtenant.sharepoint.com@tenantid",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "your client guid",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "your secret",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://accounts.accesscontrol.windows.net/tenant id/tokens/OAuth/2",
+					"protocol": "https",
+					"host": [
+						"accounts",
+						"accesscontrol",
+						"windows",
+						"net"
+					],
+					"path": [
+						"tenant id",
+						"tokens",
+						"OAuth",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search API",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "bearer token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://yoursharepointtenant.sharepoint.com/_api/search/query?queryText=test",
+					"protocol": "https",
+					"host": [
+						"hostname",
+						"sharepoint",
+						"com"
+					],
+					"path": [
+						"_api",
+						"search",
+						"query"
+					],
+					"query": [
+						{
+							"key": "queryText",
+							"value": "test"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
