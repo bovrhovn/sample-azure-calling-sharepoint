@@ -20,4 +20,6 @@ public class AzureAdOptions
     public string SubscriptionId { get; set; }
     [Required(ErrorMessage = "URL to SharePoint is required")]
     public string ApplicationIdUri { get; set; }
+    [Required(ErrorMessage = "URL to redirect URL is required")]
+    public string RedirectUrl { get; set; }
 }

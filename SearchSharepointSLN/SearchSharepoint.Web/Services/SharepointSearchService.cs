@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Security;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -21,19 +20,18 @@ public class SharepointSearchService(
     private readonly SharepointOptions sharepointOptions = sharepointOptionsValue.Value;
     private readonly AzureAdOptions azureAdOptions = azureAdOptions.Value;
 
-    // public async Task<string> LoginAsync()
-    // {
-    //     var app = ConfidentialClientApplicationBuilder.Create(azureAdOptions.ClientId)
-    //         .WithClientSecret(azureAdOptions.Secret)
-    //         .WithTenantId(azureAdOptions.TenantId)
-    //         .WithAuthority(new Uri($"https://login.microsoftonline.com/{azureAdOptions.TenantId}"))
-    //         .WithLegacyCacheCompatibility(false)
-    //         .Build();
-    //     var scopes = new[] { $"{sharepointOptions.TenantUrl}.default" };
-    //     var token = await app.AcquireTokenForClient(scopes).ExecuteAsync();
-    //     return token == null ? string.Empty : token.AccessToken;
-    // }
-
+    public async Task<string> LoginMsalAsync()
+    {
+        var app = ConfidentialClientApplicationBuilder.Create(azureAdOptions.ClientId)
+            .WithClientSecret(azureAdOptions.Secret)
+            .WithTenantId(azureAdOptions.TenantId)
+            .WithAuthority(new Uri($"https://login.microsoftonline.com/{azureAdOptions.TenantId}"))
+            .WithLegacyCacheCompatibility(false)
+            .Build();
+        var scopes = new[] { $"{sharepointOptions.TenantUrl}.default" };
+        var token = await app.AcquireTokenForClient(scopes).ExecuteAsync();
+        return token == null ? string.Empty : token.AccessToken;
+    }
 
     public async Task<string> LoginAsync()
     {
@@ -73,12 +71,66 @@ public class SharepointSearchService(
         }
     }
 
+    public async Task<string> LoginWithCodeAsync(string? code, 
+        string? redirectUri="https://localhost:5556/SP/Code")
+    {
+        if (string.IsNullOrEmpty(code))
+        {
+            logger.LogInformation("Code is null or empty.");
+            return string.Empty;
+        }
+        
+        var uri="https://login.microsoftonline.com/common/oauth2/v2.0/token";
+        logger.LogInformation("Logging to Azure Application with uri {Uri}", uri);
+        
+        var data = new List<KeyValuePair<string, string>>
+        {
+            new("grant_type", "authorization_code"),
+            new("client_id", azureAdOptions.ClientId),
+            new("client_secret", azureAdOptions.Secret),
+            new("code", code),
+            new("redirect_uri", redirectUri!),
+            new("scope", $"{sharepointOptions.TenantUrl}.default")
+        };
+        var content = new FormUrlEncodedContent(data);
+        try
+        {
+            var result = await client.PostAsync(uri, content);
+            logger.LogInformation("Call to Azure AD was successful.");
+            var bootStrapToken = await result.Content.ReadAsStringAsync();
+            logger.LogInformation("Bootstrap token received. {BoostrapToken}", bootStrapToken);
+            
+            var azureAdToken = JsonConvert.DeserializeObject<AzureAdToken>(bootStrapToken);
+
+            if (azureAdToken == null) throw new SecurityException("Unable to get bootstrap token - login failed.");
+            
+            return azureAdToken.access_token;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e.Message);
+            return string.Empty;
+        }
+    }
+
     public async Task<List<SearchModel>> SearchAsync(string query)
     {
-        logger.LogInformation("Logging to Azure Application.");
+        logger.LogInformation("Logging to Azure Application with client credentials.");
         var bootstrapToken = await LoginAsync();
+        return await SearchDataAsync(bootstrapToken, query);
+    }
+    
+    public async Task<List<SearchModel>> SearchWithAsync(string code, string query)
+    {
+        logger.LogInformation("Login to Azure Application with code.");
+        var bootstrapToken = await LoginWithCodeAsync(code);
+        return await SearchDataAsync(bootstrapToken, query);
+    }
 
-        logger.LogInformation("Bootstrap token received. {BoostrapToken}", bootstrapToken);
+    private async Task<List<SearchModel>> SearchDataAsync(string bootstrapToken, string query)
+    {
+        logger.LogInformation("Logging to Azure Application with {Token}.", bootstrapToken);
+        
         if (string.IsNullOrEmpty(bootstrapToken))
         {
             logger.LogError("Unable to get bootstrap token - login failed.");

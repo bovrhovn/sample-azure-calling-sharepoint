@@ -1,13 +1,22 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.Extensions.Options
+@using SearchSharepoint.Web.Options
+@inject IOptions<AzureAdOptions> AzureAdOptions
+@{
+    var azureAdOptions = AzureAdOptions.Value;
+    var codeUrl = $"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id={azureAdOptions.ClientId}" +
+                  $"&response_type=code&redirect_uri={azureAdOptions.RedirectUrl}&response_mode=query" +
+                  $"&scope=openid%20offline_access%20https%3A%2F%2Fgraph.microsoft.com%2FSearch.Sites.All&state=12345";
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="~/css/site.css" />
-      <script data-auto-replace-svg="nest"
-                src="https://use.fontawesome.com/releases/v6.1.1/js/all.js"></script>
+    <link rel="stylesheet" href="~/css/site.css"/>
+    <script data-auto-replace-svg="nest"
+            src="https://use.fontawesome.com/releases/v6.1.1/js/all.js"></script>
 </head>
 <body>
 <header>
@@ -25,6 +34,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-page="/SP/Index">Search</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="@codeUrl">Search with Code</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
@@ -47,14 +59,14 @@
     </nav>
 </header>
 <div class="container">
-     @if (IsSectionDefined("breadcrumb"))
-        {
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    @await RenderSectionAsync("breadcrumb")
-                </ol>
-            </nav>
-        }
+    @if (IsSectionDefined("breadcrumb"))
+    {
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                @await RenderSectionAsync("breadcrumb")
+            </ol>
+        </nav>
+    }
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
