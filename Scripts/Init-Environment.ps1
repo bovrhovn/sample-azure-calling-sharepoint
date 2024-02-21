@@ -45,7 +45,7 @@ param(
 $ProgressPreference = 'SilentlyContinue';
 Start-Transcript -Path "$HOME/Downloads/bootstrapper.log" -Force
 # Write-Output "Sign in to Azure account." 
-# login to Azure account
+# login to Azure account if not logged in
 
 if ($LoginToAzure)
 {
@@ -97,21 +97,28 @@ if ($UseEnvFile)
 
 # create resource group if it doesn't exist with bicep file stored in bicep folder
 $groupNameExport = New-AzSubscriptionDeployment -Location $Location -TemplateFile "Bicep\rg.bicep" -TemplateParameterFile "bicep\rg.parameters.json" -Verbose
-Write-Information $groupNameExport
+
+Write-Verbose "Resource group created $groupNameExport"
 $groupName = $groupNameExport.Outputs.rgName.Value
-Write-Verbose "The resource group name is $groupName"
-New-AzResourceGroupDeployment -ResourceGroupName $groupName -TemplateFile "Bicep\log-analytics.bicep" -TemplateParameterFile "Bicep\log-analytics.parameters.json" -Verbose
-$lawName = $groupNameExport.Outputs.logAnalyticsId.Value
-Write-Verbose "The log analytics workspace name is $lawName"
-$aiInsights = Get-Content "Bicep\application-insights.parameters.json" | ConvertFrom-Json
-Write-Verbose "AI parameters $aiInsights"
-$aiName = $aiInsights.parameters.appInsightName.value
-Write-Verbose "AI name is $aiName"
-$aiResource = Get-AzResource -Name $aiName -ResourceType "Microsoft.Insights/components" -ResourceGroupName $groupName
-Write-Verbose "AI resource is $aiResource"
-$details = Get-AzResource -ResourceId $aiResource.ResourceId
-$aiKey = $details.Properties.InstrumentationKey
-Write-Verbose "AI key is $aiKey to save to Web App settings."
+Write-Information "The resource group name is $groupName"
+
+# deploy web app with application insights
+New-AzResourceGroupDeployment -ResourceGroupName $groupName -TemplateFile "Bicep\webapp.bicep" -TemplateParameterFile "Bicep\webapp.parameters.json" -Verbose
+Write-Information "Web App deployed with application insights configured."
+
+## deploy log analytics, AI step by step to get AI key to be used locally or to have better control over the deployment
+## New-AzResourceGroupDeployment -ResourceGroupName $groupName -TemplateFile "Bicep\log-analytics.bicep" -TemplateParameterFile "Bicep\log-analytics.parameters.json" -Verbose
+## $lawName = $groupNameExport.Outputs.logAnalyticsId.Value
+## Write-Verbose "The log analytics workspace name is $lawName"
+## $aiInsights = Get-Content "Bicep\application-insights.parameters.json" | ConvertFrom-Json
+## Write-Verbose "AI parameters $aiInsights"
+## $aiName = $aiInsights.parameters.appInsightName.value
+## Write-Verbose "AI name is $aiName"
+## $aiResource = Get-AzResource -Name $aiName -ResourceType "Microsoft.Insights/components" -ResourceGroupName $groupName
+## Write-Verbose "AI resource is $aiResource"
+## $details = Get-AzResource -ResourceId $aiResource.ResourceId
+## $aiKey = $details.Properties.InstrumentationKey
+## Write-Verbose "AI key is $aiKey to save to Web App settings."
 
 Stop-Transcript
 
