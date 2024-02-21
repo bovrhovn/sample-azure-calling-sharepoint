@@ -5,8 +5,8 @@ using SearchSharepoint.Web.Services;
 
 namespace SearchSharepoint.Web.Pages.PWD;
 
-public class CodePageModel(ILogger<CodePageModel> logger, ISharepointSearchServices sharepointSearchServices)
-    : PageModel
+public class IndexPageModel(ILogger<IndexPageModel> logger, 
+    ISharepointSearchServices sharepointSearchServices) : PageModel
 {
     public void OnGet()
     {
@@ -14,7 +14,7 @@ public class CodePageModel(ILogger<CodePageModel> logger, ISharepointSearchServi
         if (TempData["SearchResults"] != null) 
             SearchResults = TempData["SearchResults"] as List<SearchModel> ?? [];
     }
-
+    
     public async Task<IActionResult> OnPostAsync()
     {
         logger.LogInformation("Performing search with query {Query}", Query);
@@ -26,9 +26,9 @@ public class CodePageModel(ILogger<CodePageModel> logger, ISharepointSearchServi
             TempData["SearchResults"] = SearchResults;
         }
 
-        return RedirectToPage("/SP/Code", new { code = Code });
+        return RedirectToPage("/PWD", new { code = Code });
     }
-
+    
     [BindProperty] public string Query { get; set; } = "";
     [BindProperty(SupportsGet = true)] public string Code { get; set; }
     [BindProperty] public List<SearchModel> SearchResults { get; set; } = [];
