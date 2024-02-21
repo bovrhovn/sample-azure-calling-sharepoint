@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using SearchSharepoint.Web.Models;
 using SearchSharepoint.Web.Services;
 
-namespace SearchSharepoint.Web.Pages.SP;
+namespace SearchSharepoint.Web.Pages.PWD;
 
 public class CodePageModel(ILogger<CodePageModel> logger, ISharepointSearchServices sharepointSearchServices)
     : PageModel
