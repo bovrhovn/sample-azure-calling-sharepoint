@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Identity.Web;
 using SearchSharepoint.Web.Models;
 using SearchSharepoint.Web.Services;
 
@@ -20,6 +21,6 @@ public class CodePageModel(ILogger<CodePageModel> logger, ISharepointSearchServi
     }
 
     [BindProperty(SupportsGet = true)] public string Query { get; set; } = "";
-    [BindProperty(SupportsGet = true)] public string Code { get; set; } = "";
+    [BindProperty(SupportsGet = true)] public string Code { get; set; }
     [BindProperty] public List<SearchModel> SearchResults { get; set; } = new();
 }

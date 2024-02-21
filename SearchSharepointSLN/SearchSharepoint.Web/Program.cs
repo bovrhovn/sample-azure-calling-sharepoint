@@ -24,10 +24,10 @@ builder.Services.AddRazorPages();
 builder.Services.AddHealthChecks();
 
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection(OptionNames.AzureAdOptionsName))
-    .EnableTokenAcquisitionToCallDownstreamApi(new[] { "Sites.Search.All" })
-    .AddMicrosoftGraph(builder.Configuration.GetSection("DownstreamApi"))
-    .AddInMemoryTokenCaches();
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection(OptionNames.AzureAdOptionsName));
+    // .EnableTokenAcquisitionToCallDownstreamApi(new[] { "Sites.Search.All" })
+    // .AddMicrosoftGraph(builder.Configuration.GetSection("DownstreamApi"))
+    // .AddInMemoryTokenCaches();
 
 builder.Services.AddRazorPages().AddRazorPagesOptions(options =>
         options.Conventions.AddPageRoute("/Info/Index", ""))
