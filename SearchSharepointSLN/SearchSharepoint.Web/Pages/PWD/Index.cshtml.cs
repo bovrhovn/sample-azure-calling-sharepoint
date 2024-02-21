@@ -1,14 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SearchSharepoint.Web.Models;
+using SearchSharepoint.Web.Options;
 using SearchSharepoint.Web.Services;
 
 namespace SearchSharepoint.Web.Pages.PWD;
 
 public class IndexPageModel(
     ILogger<IndexPageModel> logger,
-    ISharepointSearchServices sharepointSearchServices) : PageModel
+    ISharepointSearchServices sharepointSearchServices,
+    IOptions<AzureAdOptions> azureAdOptions) : PageModel
 {
     public void OnGet()
     {
@@ -19,7 +22,7 @@ public class IndexPageModel(
         {
             var data = TempData["SearchResults"]?.ToString();
             logger.LogInformation("Search results found in TempData {Data}", data);
-            if (!string.IsNullOrEmpty(data)) 
+            if (!string.IsNullOrEmpty(data))
                 SearchResults = JsonConvert.DeserializeObject<List<SearchModel>>(data) ?? [];
         }
     }
@@ -30,7 +33,8 @@ public class IndexPageModel(
         if (!string.IsNullOrEmpty(Query))
         {
             logger.LogInformation("Calling Sharepoint search with query {Query} and {Code}", Query, Code);
-            SearchResults = await sharepointSearchServices.SearchWithAsync(Code, Query);
+            SearchResults = await sharepointSearchServices.SearchWithAsync(Code, Query,
+                azureAdOptions.Value.RedirectUrl);
             logger.LogInformation("Search results returned {SearchResultsCount}", SearchResults.Count);
             TempData["SearchResults"] = JsonConvert.SerializeObject(SearchResults);
         }

@@ -56,12 +56,12 @@ public class SharepointSearchService(
             logger.LogInformation("Call to Azure AD was successful.");
             var bootStrapToken = await result.Content.ReadAsStringAsync();
             logger.LogInformation("Bootstrap token received. {BoostrapToken}", bootStrapToken);
-            
+
             var azureAdToken = JsonConvert.DeserializeObject<AzureAdToken>(bootStrapToken);
 
             if (azureAdToken == null)
                 throw new SecurityException("Unable to get bootstrap token - login failed.");
-            
+
             return azureAdToken.access_token;
         }
         catch (Exception e)
@@ -71,18 +71,18 @@ public class SharepointSearchService(
         }
     }
 
-    public async Task<string> LoginWithCodeAsync(string? code, 
-        string? redirectUri="https://localhost:5556/SP/Code")
+    public async Task<string> LoginWithCodeAsync(string? code,
+        string? redirectUri = "https://localhost:5556/PWD/Index")
     {
         if (string.IsNullOrEmpty(code))
         {
             logger.LogInformation("Code is null or empty.");
             return string.Empty;
         }
-        
-        var uri="https://login.microsoftonline.com/common/oauth2/v2.0/token";
+
+        var uri = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
         logger.LogInformation("Logging to Azure Application with uri {Uri}", uri);
-        
+
         var data = new List<KeyValuePair<string, string>>
         {
             new("grant_type", "authorization_code"),
@@ -99,11 +99,11 @@ public class SharepointSearchService(
             logger.LogInformation("Call to Azure AD was successful.");
             var bootStrapToken = await result.Content.ReadAsStringAsync();
             logger.LogInformation("Bootstrap token received. {BoostrapToken}", bootStrapToken);
-            
+
             var azureAdToken = JsonConvert.DeserializeObject<AzureAdToken>(bootStrapToken);
 
             if (azureAdToken == null) throw new SecurityException("Unable to get bootstrap token - login failed.");
-            
+
             return azureAdToken.access_token;
         }
         catch (Exception e)
@@ -119,18 +119,19 @@ public class SharepointSearchService(
         var bootstrapToken = await LoginAsync();
         return await SearchDataAsync(bootstrapToken, query);
     }
-    
-    public async Task<List<SearchModel>> SearchWithAsync(string code, string query)
+
+    public async Task<List<SearchModel>> SearchWithAsync(string code, string query,
+        string redirectUrl = "https://localhost:5556/PWD/Index")
     {
         logger.LogInformation("Login to Azure Application with code.");
-        var bootstrapToken = await LoginWithCodeAsync(code);
+        var bootstrapToken = await LoginWithCodeAsync(code, redirectUrl);
         return await SearchDataAsync(bootstrapToken, query);
     }
 
     private async Task<List<SearchModel>> SearchDataAsync(string bootstrapToken, string query)
     {
         logger.LogInformation("Logging to Azure Application with {Token}.", bootstrapToken);
-        
+
         if (string.IsNullOrEmpty(bootstrapToken))
         {
             logger.LogError("Unable to get bootstrap token - login failed.");
@@ -169,7 +170,7 @@ public class SharepointSearchService(
                         case "HitHighlightedSummary":
                         {
                             if (string.IsNullOrEmpty(cell.Value)) break;
-                            
+
                             var formattedWithoutHtml = Regex.Replace(cell.Value, "<.*?>", string.Empty);
                             sm.ShortDescription = formattedWithoutHtml;
                             break;
