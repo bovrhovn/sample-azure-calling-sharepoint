@@ -5,7 +5,7 @@
     var azureAdOptions = AzureAdOptions.Value;
     var codeUrl = $"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id={azureAdOptions.ClientId}" +
                   $"&response_type=code&redirect_uri={azureAdOptions.RedirectUrl}&response_mode=query" +
-                  $"&scope=https%3A%2F%2Fceecsa.sharepoint.com%2F.default";
+                  "&scope=https%3A%2F%2Fceecsa.sharepoint.com%2F.default";
 }
 <!DOCTYPE html>
 <html lang="en">

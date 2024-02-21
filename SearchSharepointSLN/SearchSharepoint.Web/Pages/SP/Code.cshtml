@@ -1,15 +1,16 @@
-﻿@page "{code}/{query?}"
+﻿@page "{code}"
 @model SearchSharepoint.Web.Pages.SP.CodePageModel
 
 @{
-    ViewData["Title"] = "Search with code ";
+    ViewData["Title"] = "Search with code";
 }
 
 <h2>Use search form below to search for API with code</h2>
 
 <div class="row">
-    <form method="get" class="row g-3">
+    <form method="post" class="row g-3">
         <div class="col-8 col-md-8">
+            <input asp-for="Code" type="hidden"/>
             <input asp-for="Query" class="form-control" placeholder="enter search query and press search"/>
         </div>
         <div class="col-auto">

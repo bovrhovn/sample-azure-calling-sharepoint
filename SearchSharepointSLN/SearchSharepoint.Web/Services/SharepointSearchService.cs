@@ -168,6 +168,8 @@ public class SharepointSearchService(
                             break;
                         case "HitHighlightedSummary":
                         {
+                            if (string.IsNullOrEmpty(cell.Value)) break;
+                            
                             var formattedWithoutHtml = Regex.Replace(cell.Value, "<.*?>", string.Empty);
                             sm.ShortDescription = formattedWithoutHtml;
                             break;
